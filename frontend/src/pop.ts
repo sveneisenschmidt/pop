@@ -96,14 +96,14 @@ export async function init(config: PopConfig): Promise<void> {
     renderButtons(container, emojis, counts, userReactions, handleClick);
   }
 
-  // Record visit if enabled
-  if (config.showVisitors) {
-    try {
-      const visitResult = await recordVisit(config.endpoint, pageId);
+  // Always record visit, but only show counter if configured
+  try {
+    const visitResult = await recordVisit(config.endpoint, pageId);
+    if (config.showVisitors) {
       renderVisitorCount(container, visitResult.uniqueVisitors);
-    } catch (error) {
-      console.error("Pop: Failed to record visit", error);
     }
+  } catch (error) {
+    console.error("Pop: Failed to record visit", error);
   }
 }
 
