@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fetchReactions, toggleReaction } from "../src/api";
+import { fetchReactions, toggleReaction, recordVisit } from "../src/api";
 
 describe("api", () => {
   beforeEach(() => {
@@ -101,6 +101,64 @@ describe("api", () => {
           "👋",
         ),
       ).rejects.toThrow("Failed to toggle reaction: 429");
+    });
+  });
+
+  describe("recordVisit", () => {
+    it("records visit and returns result", async () => {
+      const mockResponse = { success: true, recorded: true, uniqueVisitors: 5 };
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const result = await recordVisit(
+        "https://api.example.com",
+        "https://example.com/page1",
+      );
+
+      expect(fetch).toHaveBeenCalledWith("https://api.example.com/visits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "omit",
+        body: JSON.stringify({
+          pageId: "https://example.com/page1",
+        }),
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it("returns recorded false when deduplicated", async () => {
+      const mockResponse = {
+        success: true,
+        recorded: false,
+        uniqueVisitors: 5,
+      };
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const result = await recordVisit(
+        "https://api.example.com",
+        "https://example.com/page1",
+      );
+
+      expect(result.recorded).toBe(false);
+      expect(result.uniqueVisitors).toBe(5);
+    });
+
+    it("throws on non-ok response", async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 429,
+      });
+
+      await expect(
+        recordVisit("https://api.example.com", "https://example.com/page1"),
+      ).rejects.toThrow("Failed to record visit: 429");
     });
   });
 });

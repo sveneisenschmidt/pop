@@ -4,7 +4,11 @@
  * @license MIT
  */
 
-import type { ReactionsResponse, ToggleReactionResponse } from "./types";
+import type {
+  ReactionsResponse,
+  ToggleReactionResponse,
+  VisitResponse,
+} from "./types";
 
 export async function fetchReactions(
   endpoint: string,
@@ -34,6 +38,22 @@ export async function toggleReaction(
   });
   if (!response.ok) {
     throw new Error(`Failed to toggle reaction: ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function recordVisit(
+  endpoint: string,
+  pageId: string,
+): Promise<VisitResponse> {
+  const response = await fetch(`${endpoint}/visits`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "omit",
+    body: JSON.stringify({ pageId }),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to record visit: ${response.status}`);
   }
   return response.json();
 }

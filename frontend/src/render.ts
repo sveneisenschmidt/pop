@@ -49,3 +49,26 @@ export function updateButton(
   }
   button.classList.toggle("pop-btn--active", isActive);
 }
+
+export function renderVisitorCount(
+  container: HTMLElement,
+  count: number,
+): void {
+  let visitorEl = container.querySelector(".pop-visitors") as HTMLElement;
+  if (!visitorEl) {
+    visitorEl = document.createElement("div");
+    visitorEl.className = "pop-visitors";
+    container.appendChild(visitorEl);
+  }
+  visitorEl.textContent = `${count} visitor${count !== 1 ? "s" : ""}`;
+}
+
+export function updateVisitorCount(
+  container: HTMLElement,
+  count: number,
+): void {
+  const visitorEl = container.querySelector(".pop-visitors");
+  if (visitorEl) {
+    visitorEl.textContent = `${count} visitor${count !== 1 ? "s" : ""}`;
+  }
+}

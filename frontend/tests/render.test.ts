@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderButtons, updateButton } from "../src/render";
+import {
+  renderButtons,
+  updateButton,
+  renderVisitorCount,
+  updateVisitorCount,
+} from "../src/render";
 
 describe("render", () => {
   let container: HTMLElement;
@@ -87,6 +92,64 @@ describe("render", () => {
 
       expect(button.querySelector("span")?.textContent).toBe("4");
       expect(button.classList.contains("pop-btn--active")).toBe(false);
+    });
+  });
+
+  describe("renderVisitorCount", () => {
+    it("creates visitor element with count", () => {
+      renderVisitorCount(container, 5);
+
+      const visitorEl = container.querySelector(".pop-visitors");
+      expect(visitorEl).not.toBeNull();
+      expect(visitorEl?.textContent).toBe("5 visitors");
+    });
+
+    it("uses singular form for 1 visitor", () => {
+      renderVisitorCount(container, 1);
+
+      const visitorEl = container.querySelector(".pop-visitors");
+      expect(visitorEl?.textContent).toBe("1 visitor");
+    });
+
+    it("shows 0 visitors", () => {
+      renderVisitorCount(container, 0);
+
+      const visitorEl = container.querySelector(".pop-visitors");
+      expect(visitorEl?.textContent).toBe("0 visitors");
+    });
+
+    it("reuses existing visitor element", () => {
+      renderVisitorCount(container, 5);
+      renderVisitorCount(container, 10);
+
+      const visitorEls = container.querySelectorAll(".pop-visitors");
+      expect(visitorEls.length).toBe(1);
+      expect(visitorEls[0].textContent).toBe("10 visitors");
+    });
+  });
+
+  describe("updateVisitorCount", () => {
+    it("updates existing visitor count", () => {
+      renderVisitorCount(container, 5);
+      updateVisitorCount(container, 10);
+
+      const visitorEl = container.querySelector(".pop-visitors");
+      expect(visitorEl?.textContent).toBe("10 visitors");
+    });
+
+    it("handles singular form on update", () => {
+      renderVisitorCount(container, 5);
+      updateVisitorCount(container, 1);
+
+      const visitorEl = container.querySelector(".pop-visitors");
+      expect(visitorEl?.textContent).toBe("1 visitor");
+    });
+
+    it("does nothing if visitor element does not exist", () => {
+      updateVisitorCount(container, 10);
+
+      const visitorEl = container.querySelector(".pop-visitors");
+      expect(visitorEl).toBeNull();
     });
   });
 });

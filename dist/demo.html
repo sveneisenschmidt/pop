@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pop Demo</title>
+  <link rel="stylesheet" href="pop.min.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    h1 { margin-bottom: 0.5rem; }
+    p { color: #666; margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>Pop! Demo</h1>
+  <p>Click an emoji to react:</p>
+  <div id="pop"></div>
+
+  <script src="pop.min.js"></script>
+  <script>
+    Pop.init({
+      el: '#pop',
+      endpoint: '/api',
+      pageId: 'demo',
+      emojis: ['👋', '🔥', '💡', '❤️'],
+      showVisitors: true
+    });
+  </script>
+</body>
+</html>

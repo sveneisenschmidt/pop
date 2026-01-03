@@ -38,7 +38,7 @@ class DomainValidationSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if (!str_starts_with($request->getPathInfo(), "/api/reactions")) {
+        if (!$this->isApiPath($request->getPathInfo())) {
             return;
         }
 
@@ -75,7 +75,7 @@ class DomainValidationSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if (!str_starts_with($request->getPathInfo(), "/api/reactions")) {
+        if (!$this->isApiPath($request->getPathInfo())) {
             return;
         }
 
@@ -108,5 +108,11 @@ class DomainValidationSubscriber implements EventSubscriberInterface
     private function isAllowedDomain(string $origin): bool
     {
         return in_array($origin, $this->allowedDomains, true);
+    }
+
+    private function isApiPath(string $path): bool
+    {
+        return str_starts_with($path, "/api/reactions") ||
+            str_starts_with($path, "/api/visits");
     }
 }

@@ -7,8 +7,10 @@
 export interface PopConfig {
   el: string;
   endpoint: string;
-  emojis: string[];
+  emojis?: string[];
   pageId?: string;
+  showVisitors?: boolean;
+  silent?: boolean;
 }
 
 export interface ReactionsResponse {
@@ -21,4 +23,16 @@ export interface ToggleReactionResponse {
   success: boolean;
   action: "added" | "removed";
   count: number;
+}
+
+export interface VisitResponse {
+  success: boolean;
+  recorded: boolean;
+  uniqueVisitors: number;
+}
+
+export interface VisitsResponse {
+  pageId: string;
+  uniqueVisitors: number;
+  totalVisits: number;
 }

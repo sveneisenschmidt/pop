@@ -5,27 +5,46 @@
  */
 
 import type { PopConfig } from "./types";
-import { fetchReactions, toggleReaction } from "./api";
-import { renderButtons, updateButton } from "./render";
+import { fetchReactions, toggleReaction, recordVisit } from "./api";
+import {
+  renderButtons,
+  updateButton,
+  renderVisitorCount,
+  updateVisitorCount,
+} from "./render";
 
 export async function init(config: PopConfig): Promise<void> {
+  const pageId = config.pageId || window.location.href;
+  const emojis = config.emojis || [];
+
+  // Silent mode: only record visit, no UI
+  if (config.silent) {
+    try {
+      await recordVisit(config.endpoint, pageId);
+    } catch (error) {
+      console.error("Pop: Failed to record visit", error);
+    }
+    return;
+  }
+
   const container = document.querySelector<HTMLElement>(config.el);
   if (!container) {
     console.error(`Pop: Element "${config.el}" not found`);
     return;
   }
 
-  const pageId = config.pageId || window.location.href;
-
   let counts: Record<string, number> = {};
   let userReactions: string[] = [];
 
-  try {
-    const data = await fetchReactions(config.endpoint, pageId);
-    counts = data.reactions;
-    userReactions = data.userReactions;
-  } catch (error) {
-    console.error("Pop: Failed to fetch reactions", error);
+  // Only fetch reactions if emojis are configured
+  if (emojis.length > 0) {
+    try {
+      const data = await fetchReactions(config.endpoint, pageId);
+      counts = data.reactions;
+      userReactions = data.userReactions;
+    } catch (error) {
+      console.error("Pop: Failed to fetch reactions", error);
+    }
   }
 
   const handleClick = async (emoji: string, button: HTMLButtonElement) => {
@@ -72,7 +91,20 @@ export async function init(config: PopConfig): Promise<void> {
     }
   };
 
-  renderButtons(container, config.emojis, counts, userReactions, handleClick);
+  // Only render buttons if emojis are configured
+  if (emojis.length > 0) {
+    renderButtons(container, emojis, counts, userReactions, handleClick);
+  }
+
+  // Record visit if enabled
+  if (config.showVisitors) {
+    try {
+      const visitResult = await recordVisit(config.endpoint, pageId);
+      renderVisitorCount(container, visitResult.uniqueVisitors);
+    } catch (error) {
+      console.error("Pop: Failed to record visit", error);
+    }
+  }
 }
 
 export { PopConfig } from "./types";

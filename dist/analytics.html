@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pop Analytics</title>
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    sans-serif;
+                background: #0f0f0f;
+                color: #e0e0e0;
+                min-height: 100vh;
+                padding: 2rem;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                font-weight: 600;
+                margin-bottom: 2rem;
+                color: #fff;
+            }
+
+            .config {
+                background: #1a1a1a;
+                border-radius: 8px;
+                padding: 1rem;
+                margin-bottom: 2rem;
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+            }
+
+            .config label {
+                font-size: 0.875rem;
+                color: #888;
+            }
+
+            .config input {
+                flex: 1;
+                padding: 0.5rem 0.75rem;
+                border: 1px solid #333;
+                border-radius: 4px;
+                background: #0f0f0f;
+                color: #fff;
+                font-size: 0.875rem;
+            }
+
+            .config button {
+                padding: 0.5rem 1rem;
+                background: #3b82f6;
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.875rem;
+            }
+
+            .config button:hover {
+                background: #2563eb;
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .stat-card {
+                background: #1a1a1a;
+                border-radius: 8px;
+                padding: 1.5rem;
+            }
+
+            .stat-card .label {
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: #666;
+                margin-bottom: 0.5rem;
+            }
+
+            .stat-card .value {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #fff;
+            }
+
+            .pages-section h2 {
+                font-size: 1rem;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                color: #fff;
+            }
+
+            .pages-table {
+                width: 100%;
+                background: #1a1a1a;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .pages-table table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .pages-table th,
+            .pages-table td {
+                padding: 0.75rem 1rem;
+                text-align: left;
+            }
+
+            .pages-table th {
+                background: #252525;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: #666;
+                font-weight: 600;
+            }
+
+            .pages-table td {
+                border-top: 1px solid #252525;
+                font-size: 0.875rem;
+            }
+
+            .pages-table tr:hover td {
+                background: #202020;
+            }
+
+            .pages-table .page-url {
+                max-width: 500px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: #3b82f6;
+            }
+
+            .pages-table .number {
+                text-align: right;
+                font-variant-numeric: tabular-nums;
+                color: #fff;
+            }
+
+            .loading,
+            .error {
+                text-align: center;
+                padding: 3rem;
+                color: #666;
+            }
+
+            .error {
+                color: #ef4444;
+            }
+
+            @media (max-width: 768px) {
+                .stats-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .config {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Pop Analytics</h1>
+
+            <div class="config">
+                <label for="endpoint">API Endpoint:</label>
+                <input
+                    type="text"
+                    id="endpoint"
+                    placeholder="https://your-api.com/api"
+                />
+                <button onclick="loadStats()">Load</button>
+            </div>
+
+            <div id="content">
+                <div class="loading">
+                    Enter your API endpoint and click Load
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const endpointInput = document.getElementById("endpoint");
+            const content = document.getElementById("content");
+
+            // Load saved endpoint from localStorage
+            const savedEndpoint = localStorage.getItem(
+                "pop-analytics-endpoint",
+            );
+            if (savedEndpoint) {
+                endpointInput.value = savedEndpoint;
+                loadStats();
+            }
+
+            async function loadStats() {
+                const endpoint = endpointInput.value.trim();
+                if (!endpoint) {
+                    content.innerHTML =
+                        '<div class="error">Please enter an API endpoint</div>';
+                    return;
+                }
+
+                // Save endpoint to localStorage
+                localStorage.setItem("pop-analytics-endpoint", endpoint);
+
+                content.innerHTML = '<div class="loading">Loading...</div>';
+
+                try {
+                    const response = await fetch(`${endpoint}/stats`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    renderStats(data);
+                } catch (error) {
+                    content.innerHTML = `<div class="error">Failed to load stats: ${error.message}</div>`;
+                }
+            }
+
+            function renderStats(data) {
+                const { global, pages } = data;
+
+                let html = `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="label">Unique Visitors</div>
+            <div class="value">${formatNumber(global.uniqueVisitors)}</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Total Page Views</div>
+            <div class="value">${formatNumber(global.totalVisits)}</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Pages</div>
+            <div class="value">${formatNumber(global.totalPages)}</div>
+          </div>
+        </div>
+
+        <div class="pages-section">
+          <h2>Pages</h2>
+          <div class="pages-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Page</th>
+                  <th style="text-align: right">Unique Visitors</th>
+                  <th style="text-align: right">Total Views</th>
+                </tr>
+              </thead>
+              <tbody>
+      `;
+
+                for (const page of pages) {
+                    html += `
+          <tr>
+            <td class="page-url" title="${escapeHtml(page.pageId)}">${escapeHtml(page.pageId)}</td>
+            <td class="number">${formatNumber(page.uniqueVisitors)}</td>
+            <td class="number">${formatNumber(page.totalVisits)}</td>
+          </tr>
+        `;
+                }
+
+                if (pages.length === 0) {
+                    html += `
+          <tr>
+            <td colspan="3" style="text-align: center; color: #666;">No data yet</td>
+          </tr>
+        `;
+                }
+
+                html += `
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+                content.innerHTML = html;
+            }
+
+            function formatNumber(num) {
+                return new Intl.NumberFormat().format(num);
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement("div");
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Allow pressing Enter to load
+            endpointInput.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") {
+                    loadStats();
+                }
+            });
+        </script>
+    </body>
+</html>

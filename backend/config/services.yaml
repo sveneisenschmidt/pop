@@ -9,6 +9,7 @@
 parameters:
     pop.database_path: "%kernel.project_dir%/%env(POP_DATABASE_PATH)%"
     pop.allowed_domains: "%env(csv:POP_ALLOWED_DOMAINS)%"
+    pop.visit_dedup: "1800"
 
 services:
     # default configuration for services in *this* file
@@ -33,6 +34,24 @@ services:
             $databasePath: "%pop.database_path%"
             $enabled: true
 
+    App\Service\VisitService:
+        arguments:
+            $databasePath: "%pop.database_path%"
+            $dedupSeconds: "%env(int:default:pop.visit_dedup:POP_VISIT_DEDUP_SECONDS)%"
+
     App\EventSubscriber\DomainValidationSubscriber:
         arguments:
             $allowedDomains: "%pop.allowed_domains%"
+
+when@test:
+    parameters:
+        pop.database_path: "%kernel.project_dir%/var/test.db"
+        pop.allowed_domains:
+            - "http://localhost:3000"
+
+    services:
+        App\Service\RateLimiterService:
+            arguments:
+                $databasePath: "%pop.database_path%"
+                $fingerprint: "@App\\Service\\FingerprintService"
+                $enabled: false
