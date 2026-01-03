@@ -10,6 +10,7 @@ parameters:
     pop.database_path: "%kernel.project_dir%/%env(POP_DATABASE_PATH)%"
     pop.allowed_domains: "%env(csv:POP_ALLOWED_DOMAINS)%"
     pop.visit_dedup: "1800"
+    pop.rate_limiter_enabled: true
 
 services:
     # default configuration for services in *this* file
@@ -25,18 +26,25 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\Service\ReactionService:
+    PDO:
+        class: PDO
         arguments:
-            $databasePath: "%pop.database_path%"
+            - "sqlite:%pop.database_path%"
+        calls:
+            - [
+                  setAttribute,
+                  [
+                      !php/const PDO::ATTR_ERRMODE,
+                      !php/const PDO::ERRMODE_EXCEPTION,
+                  ],
+              ]
 
     App\Service\RateLimiterService:
         arguments:
-            $databasePath: "%pop.database_path%"
-            $enabled: true
+            $enabled: "%pop.rate_limiter_enabled%"
 
     App\Service\VisitService:
         arguments:
-            $databasePath: "%pop.database_path%"
             $dedupSeconds: "%env(int:default:pop.visit_dedup:POP_VISIT_DEDUP_SECONDS)%"
 
     App\EventSubscriber\DomainValidationSubscriber:
@@ -48,10 +56,4 @@ when@test:
         pop.database_path: "%kernel.project_dir%/var/test.db"
         pop.allowed_domains:
             - "http://localhost:3000"
-
-    services:
-        App\Service\RateLimiterService:
-            arguments:
-                $databasePath: "%pop.database_path%"
-                $fingerprint: "@App\\Service\\FingerprintService"
-                $enabled: false
+        pop.rate_limiter_enabled: false

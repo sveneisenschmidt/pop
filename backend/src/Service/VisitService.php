@@ -16,16 +16,10 @@ class VisitService
 {
     private const DEFAULT_DEDUP_SECONDS = 1800; // 30 minutes
 
-    private PDO $pdo;
-    private int $dedupSeconds;
-
     public function __construct(
-        string $databasePath,
-        int $dedupSeconds = self::DEFAULT_DEDUP_SECONDS,
+        private PDO $pdo,
+        private int $dedupSeconds = self::DEFAULT_DEDUP_SECONDS,
     ) {
-        $this->pdo = new PDO("sqlite:" . $databasePath);
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $this->dedupSeconds = $dedupSeconds;
         $this->initializeSchema();
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\Service\VisitService;
+use PDO;
 use PHPUnit\Framework\TestCase;
 
 class VisitServiceTest extends TestCase
@@ -13,8 +14,10 @@ class VisitServiceTest extends TestCase
 
     protected function setUp(): void
     {
+        $pdo = new PDO("sqlite::memory:");
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         // Use 5 second dedup for faster tests
-        $this->service = new VisitService(":memory:", 5);
+        $this->service = new VisitService($pdo, 5);
     }
 
     public function testRecordVisitReturnsTrue(): void
@@ -100,9 +103,7 @@ class VisitServiceTest extends TestCase
 
     public function testGetTotalVisitsReturnsZeroForNewPage(): void
     {
-        $count = $this->service->getTotalVisits(
-            "https://example.com/new-page",
-        );
+        $count = $this->service->getTotalVisits("https://example.com/new-page");
 
         $this->assertSame(0, $count);
     }

@@ -12,6 +12,7 @@ namespace App\Controller;
 
 use App\Service\FingerprintService;
 use App\Service\RateLimiterService;
+use App\Service\ReactionService;
 use App\Service\VisitService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,6 +27,7 @@ class VisitController extends AbstractController
 
     public function __construct(
         private VisitService $visitService,
+        private ReactionService $reactionService,
         private RateLimiterService $rateLimiter,
         private FingerprintService $fingerprint,
     ) {}
@@ -41,12 +43,16 @@ class VisitController extends AbstractController
                 "uniqueVisitors" => (int) $global["unique_visitors"],
                 "totalVisits" => (int) $global["total_visits"],
                 "totalPages" => (int) $global["total_pages"],
+                "totalReactions" => $this->reactionService->getGlobalReactionCount(),
             ],
             "pages" => array_map(
                 fn($page) => [
                     "pageId" => $page["page_id"],
                     "uniqueVisitors" => (int) $page["unique_visitors"],
                     "totalVisits" => (int) $page["total_visits"],
+                    "totalReactions" => $this->reactionService->getTotalReactions(
+                        $page["page_id"],
+                    ),
                 ],
                 $pages,
             ),

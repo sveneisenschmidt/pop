@@ -14,12 +14,8 @@ use PDO;
 
 class ReactionService
 {
-    private PDO $pdo;
-
-    public function __construct(string $databasePath)
+    public function __construct(private PDO $pdo)
     {
-        $this->pdo = new PDO("sqlite:" . $databasePath);
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->initializeSchema();
     }
 
@@ -172,5 +168,22 @@ class ReactionService
         $stmt->execute([$pageId, $emoji]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ? (int) $row["count"] : 0;
+    }
+
+    public function getTotalReactions(string $pageId): int
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT COALESCE(SUM(count), 0) FROM reactions WHERE page_id = ?",
+        );
+        $stmt->execute([$pageId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function getGlobalReactionCount(): int
+    {
+        $stmt = $this->pdo->query(
+            "SELECT COALESCE(SUM(count), 0) FROM reactions",
+        );
+        return (int) $stmt->fetchColumn();
     }
 }

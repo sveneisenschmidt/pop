@@ -18,17 +18,11 @@ class RateLimiterService
     private const MAX_REQUESTS = 10;
     private const WINDOW_SECONDS = 60;
 
-    private PDO $pdo;
-    private bool $enabled;
-
     public function __construct(
-        string $databasePath,
+        private PDO $pdo,
         private FingerprintService $fingerprint,
-        bool $enabled = true,
+        private bool $enabled = true,
     ) {
-        $this->enabled = $enabled;
-        $this->pdo = new PDO("sqlite:" . $databasePath);
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->initializeSchema();
     }
 

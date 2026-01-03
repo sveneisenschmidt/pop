@@ -28,17 +28,34 @@
                 const { global, pages } = data;
 
                 let html = `
-                <p>
-                    <strong>${global.uniqueVisitors}</strong> unique visitors,
-                    <strong>${global.totalVisits}</strong> page views,
-                    <strong>${global.totalPages}</strong> pages
-                </p>
+                <h2>Overview</h2>
+                <table border="1" cellpadding="8" cellspacing="0">
+                    <tr>
+                        <td><strong>Unique Visitors</strong><br><small>Distinct people</small></td>
+                        <td align="right"><strong>${global.uniqueVisitors}</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Page Views</strong><br><small>Total page loads</small></td>
+                        <td align="right"><strong>${global.totalVisits}</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reactions</strong><br><small>Emoji clicks</small></td>
+                        <td align="right"><strong>${global.totalReactions}</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pages</strong><br><small>Tracked pages</small></td>
+                        <td align="right"><strong>${global.totalPages}</strong></td>
+                    </tr>
+                </table>
+
+                <h2>Per Page</h2>
                 <table border="1" cellpadding="8" cellspacing="0">
                     <thead>
                         <tr>
                             <th align="left">Page</th>
-                            <th align="right">Unique</th>
-                            <th align="right">Views</th>
+                            <th align="right">Unique Visitors</th>
+                            <th align="right">Page Views</th>
+                            <th align="right">Reactions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -50,12 +67,13 @@
                         <td>${escapeHtml(page.pageId)}</td>
                         <td align="right">${page.uniqueVisitors}</td>
                         <td align="right">${page.totalVisits}</td>
+                        <td align="right">${page.totalReactions}</td>
                     </tr>
                 `;
                 }
 
                 if (pages.length === 0) {
-                    html += `<tr><td colspan="3">No data yet</td></tr>`;
+                    html += `<tr><td colspan="4">No data yet</td></tr>`;
                 }
 
                 html += `</tbody></table>`;

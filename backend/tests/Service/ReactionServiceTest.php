@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\Service\ReactionService;
+use PDO;
 use PHPUnit\Framework\TestCase;
 
 class ReactionServiceTest extends TestCase
 {
     private ReactionService $service;
-    private string $dbPath;
 
     protected function setUp(): void
     {
-        $this->dbPath = ":memory:";
-        $this->service = new ReactionService($this->dbPath);
+        $pdo = new PDO("sqlite::memory:");
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->service = new ReactionService($pdo);
     }
 
     public function testGetReactionsReturnsEmptyArrayForNewPage(): void
