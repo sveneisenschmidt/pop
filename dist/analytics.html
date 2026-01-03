@@ -33,45 +33,6 @@
                 color: #fff;
             }
 
-            .config {
-                background: #1a1a1a;
-                border-radius: 8px;
-                padding: 1rem;
-                margin-bottom: 2rem;
-                display: flex;
-                gap: 1rem;
-                align-items: center;
-            }
-
-            .config label {
-                font-size: 0.875rem;
-                color: #888;
-            }
-
-            .config input {
-                flex: 1;
-                padding: 0.5rem 0.75rem;
-                border: 1px solid #333;
-                border-radius: 4px;
-                background: #0f0f0f;
-                color: #fff;
-                font-size: 0.875rem;
-            }
-
-            .config button {
-                padding: 0.5rem 1rem;
-                background: #3b82f6;
-                color: #fff;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 0.875rem;
-            }
-
-            .config button:hover {
-                background: #2563eb;
-            }
-
             .stats-grid {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
@@ -171,11 +132,6 @@
                 .stats-grid {
                     grid-template-columns: 1fr;
                 }
-
-                .config {
-                    flex-direction: column;
-                    align-items: stretch;
-                }
             }
         </style>
     </head>
@@ -183,51 +139,17 @@
         <div class="container">
             <h1>Pop Analytics</h1>
 
-            <div class="config">
-                <label for="endpoint">API Endpoint:</label>
-                <input
-                    type="text"
-                    id="endpoint"
-                    placeholder="https://your-api.com/api"
-                />
-                <button onclick="loadStats()">Load</button>
-            </div>
-
             <div id="content">
-                <div class="loading">
-                    Enter your API endpoint and click Load
-                </div>
+                <div class="loading">Loading...</div>
             </div>
         </div>
 
         <script>
-            const endpointInput = document.getElementById("endpoint");
             const content = document.getElementById("content");
 
-            // Load saved endpoint from localStorage
-            const savedEndpoint = localStorage.getItem(
-                "pop-analytics-endpoint",
-            );
-            if (savedEndpoint) {
-                endpointInput.value = savedEndpoint;
-                loadStats();
-            }
-
             async function loadStats() {
-                const endpoint = endpointInput.value.trim();
-                if (!endpoint) {
-                    content.innerHTML =
-                        '<div class="error">Please enter an API endpoint</div>';
-                    return;
-                }
-
-                // Save endpoint to localStorage
-                localStorage.setItem("pop-analytics-endpoint", endpoint);
-
-                content.innerHTML = '<div class="loading">Loading...</div>';
-
                 try {
-                    const response = await fetch(`${endpoint}/stats`);
+                    const response = await fetch("/api/stats");
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}`);
                     }
@@ -310,12 +232,7 @@
                 return div.innerHTML;
             }
 
-            // Allow pressing Enter to load
-            endpointInput.addEventListener("keypress", (e) => {
-                if (e.key === "Enter") {
-                    loadStats();
-                }
-            });
+            loadStats();
         </script>
     </body>
 </html>
