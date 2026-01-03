@@ -1,4 +1,7 @@
-.PHONY: install test build dist demo clean
+.PHONY: install test build dist demo deploy-ftp clean
+
+-include .env
+export
 
 install:
 	cd backend && $(MAKE) install
@@ -23,6 +26,9 @@ demo: dist
 	@open http://localhost:8000/demo.html || xdg-open http://localhost:8000/demo.html || echo "Open http://localhost:8000/demo.html"
 	@echo "Press Ctrl+C to stop"
 	@wait
+
+deploy-ftp: dist
+	lftp -e "set ssl:verify-certificate no; mirror -R --verbose --exclude var/ --exclude .env --exclude .htaccess build/ $(FTP_PATH); quit" -u $(FTP_USER),$(FTP_PASS) $(FTP_HOST)
 
 clean:
 	cd backend && $(MAKE) clean

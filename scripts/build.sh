@@ -28,7 +28,7 @@ echo "Copying backend..."
 cp -r "$ROOT_DIR/backend/src" "$BUILD_DIR/"
 cp -r "$ROOT_DIR/backend/config" "$BUILD_DIR/"
 cp -r "$ROOT_DIR/backend/bin" "$BUILD_DIR/"
-cp -r "$ROOT_DIR/backend/public/"* "$BUILD_DIR/public/"
+cp -r "$ROOT_DIR/backend/public/". "$BUILD_DIR/public/"
 cp "$ROOT_DIR/backend/composer.json" "$BUILD_DIR/"
 cp "$ROOT_DIR/backend/composer.lock" "$BUILD_DIR/"
 
