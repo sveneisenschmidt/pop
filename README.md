@@ -70,6 +70,42 @@ Opens http://localhost:8000/demo.html - click emojis to toggle reactions.
 
 5. Ensure `var/` directory is writable by the web server.
 
+### Docker Compose
+
+```yaml
+services:
+  pop:
+    image: php:8.3-apache
+    ports:
+      - "8080:80"
+    volumes:
+      - ./build:/var/www/html
+      - pop-data:/var/www/html/var
+    environment:
+      - APP_ENV=prod
+      - APP_SECRET=change-me-to-random-string
+      - POP_ALLOWED_DOMAINS=https://your-blog.com
+      - POP_DATABASE_PATH=var/data.db
+    command: >
+      bash -c "a2enmod rewrite &&
+               echo '<Directory /var/www/html/public>
+                 AllowOverride All
+                 Require all granted
+               </Directory>' > /etc/apache2/conf-available/pop.conf &&
+               a2enconf pop &&
+               sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf &&
+               apache2-foreground"
+
+volumes:
+  pop-data:
+```
+
+Run with:
+```bash
+make dist
+docker compose up -d
+```
+
 ## Usage
 
 ```html
