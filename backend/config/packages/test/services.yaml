@@ -1,0 +1,11 @@
+parameters:
+    pop.database_path: ":memory:"
+    pop.allowed_domains:
+        - "http://localhost:3000"
+
+services:
+    App\Service\RateLimiterService:
+        arguments:
+            $databasePath: ":memory:"
+            $fingerprint: "@App\\Service\\FingerprintService"
+            $enabled: false

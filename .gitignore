@@ -1,0 +1,24 @@
+# Build output
+/build/
+
+# Dependencies
+/backend/vendor/
+/frontend/node_modules/
+
+# Frontend build
+/frontend/dist/
+
+# Backend runtime
+/backend/var/
+
+# Environment
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
