@@ -113,6 +113,7 @@ class DomainValidationSubscriber implements EventSubscriberInterface
     private function isApiPath(string $path): bool
     {
         return str_starts_with($path, "/api/reactions") ||
-            str_starts_with($path, "/api/visits");
+            str_starts_with($path, "/api/visits") ||
+            str_starts_with($path, "/api/stats");
     }
 }
