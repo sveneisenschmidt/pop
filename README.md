@@ -114,7 +114,7 @@ docker compose up -d
 
 ## Usage
 
-### Reactions with Visitor Counter
+### Full Widget (Reactions + Visitor Counter)
 
 ```html
 <link rel="stylesheet" href="https://your-api.com/pop.min.css">
@@ -126,7 +126,25 @@ docker compose up -d
     endpoint: 'https://your-api.com/api',
     pageId: 'unique-page-id',  // optional, defaults to current URL
     emojis: ['👍', '🔥', '💡', '❤️'],
-    showVisitors: true         // optional, shows visitor count
+    trackVisits: true,
+    renderVisits: true,
+    renderReactions: true
+  });
+</script>
+```
+
+### Reactions Only (No Visitor Counter)
+
+```html
+<div id="pop"></div>
+<script src="https://your-api.com/pop.min.js"></script>
+<script>
+  Pop.init({
+    el: '#pop',
+    endpoint: 'https://your-api.com/api',
+    emojis: ['👍', '🔥', '💡', '❤️'],
+    trackVisits: true,
+    renderReactions: true
   });
 </script>
 ```
@@ -140,12 +158,13 @@ docker compose up -d
   Pop.init({
     el: '#pop',
     endpoint: 'https://your-api.com/api',
-    showVisitors: true
+    trackVisits: true,
+    renderVisits: true
   });
 </script>
 ```
 
-### Silent Mode (No UI)
+### Silent Mode (Tracking Only, No UI)
 
 For recording visits without displaying anything:
 
@@ -154,7 +173,7 @@ For recording visits without displaying anything:
 <script>
   Pop.init({
     endpoint: 'https://your-api.com/api',
-    silent: true
+    trackVisits: true
   });
 </script>
 ```
@@ -163,12 +182,13 @@ For recording visits without displaying anything:
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `el` | string | required | CSS selector for container element |
 | `endpoint` | string | required | API endpoint URL |
-| `emojis` | string[] | `[]` | Array of emoji to display |
 | `pageId` | string | current URL | Unique identifier for the page |
-| `showVisitors` | boolean | `false` | Show visitor counter |
-| `silent` | boolean | `false` | Record visit without UI |
+| `el` | string | - | CSS selector for container (required if rendering) |
+| `emojis` | string[] | `[]` | Array of emoji (required if `renderReactions`) |
+| `trackVisits` | boolean | `false` | Record visits to the server |
+| `renderVisits` | boolean | `false` | Show visitor counter (requires `el`) |
+| `renderReactions` | boolean | `false` | Show reaction buttons (requires `el` + `emojis`) |
 
 ## API
 
