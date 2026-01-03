@@ -16,28 +16,51 @@ import {
 export async function init(config: PopConfig): Promise<void> {
   const pageId = config.pageId || window.location.href;
   const emojis = config.emojis || [];
+  const needsContainer = config.renderVisits || config.renderReactions;
 
-  // Silent mode: only record visit, no UI
-  if (config.silent) {
+  // Validate config
+  if (config.renderReactions && emojis.length === 0) {
+    console.error("Pop: renderReactions requires emojis to be defined");
+    return;
+  }
+
+  // Get container if needed for rendering
+  let container: HTMLElement | null = null;
+  if (needsContainer) {
+    if (!config.el) {
+      console.error(
+        "Pop: el is required when renderVisits or renderReactions is enabled",
+      );
+      return;
+    }
+    container = document.querySelector<HTMLElement>(config.el);
+    if (!container) {
+      console.error(`Pop: Element "${config.el}" not found`);
+      return;
+    }
+  }
+
+  // Track visits
+  let uniqueVisitors = 0;
+  if (config.trackVisits) {
     try {
-      await recordVisit(config.endpoint, pageId);
+      const visitResult = await recordVisit(config.endpoint, pageId);
+      uniqueVisitors = visitResult.uniqueVisitors;
     } catch (error) {
       console.error("Pop: Failed to record visit", error);
     }
-    return;
   }
 
-  const container = document.querySelector<HTMLElement>(config.el);
-  if (!container) {
-    console.error(`Pop: Element "${config.el}" not found`);
-    return;
+  // Render visits
+  if (config.renderVisits && container) {
+    renderVisitorCount(container, uniqueVisitors);
   }
 
-  let counts: Record<string, number> = {};
-  let userReactions: string[] = [];
+  // Render reactions
+  if (config.renderReactions && container && emojis.length > 0) {
+    let counts: Record<string, number> = {};
+    let userReactions: string[] = [];
 
-  // Only fetch reactions if emojis are configured
-  if (emojis.length > 0) {
     try {
       const data = await fetchReactions(config.endpoint, pageId);
       counts = data.reactions;
@@ -45,65 +68,48 @@ export async function init(config: PopConfig): Promise<void> {
     } catch (error) {
       console.error("Pop: Failed to fetch reactions", error);
     }
-  }
 
-  const handleClick = async (emoji: string, button: HTMLButtonElement) => {
-    if (button.disabled) return;
+    const handleClick = async (emoji: string, button: HTMLButtonElement) => {
+      if (button.disabled) return;
 
-    const wasActive = userReactions.includes(emoji);
-    const currentCount = counts[emoji] || 0;
+      const wasActive = userReactions.includes(emoji);
+      const currentCount = counts[emoji] || 0;
 
-    // Disable button during request
-    button.disabled = true;
+      button.disabled = true;
 
-    // Optimistic update
-    const optimisticCount = wasActive ? currentCount - 1 : currentCount + 1;
-    updateButton(button, optimisticCount, !wasActive);
+      const optimisticCount = wasActive ? currentCount - 1 : currentCount + 1;
+      updateButton(button, optimisticCount, !wasActive);
 
-    if (wasActive) {
-      userReactions = userReactions.filter((e) => e !== emoji);
-    } else {
-      userReactions.push(emoji);
-    }
-
-    try {
-      const result = await toggleReaction(config.endpoint, pageId, emoji);
-      counts[emoji] = result.count;
-      updateButton(button, result.count, result.action === "added");
-
-      // Sync userReactions with server response
-      if (result.action === "added" && !userReactions.includes(emoji)) {
-        userReactions.push(emoji);
-      } else if (result.action === "removed") {
-        userReactions = userReactions.filter((e) => e !== emoji);
-      }
-    } catch (error) {
-      console.error("Pop: Failed to toggle reaction", error);
-      // Revert optimistic update
-      updateButton(button, currentCount, wasActive);
       if (wasActive) {
-        userReactions.push(emoji);
-      } else {
         userReactions = userReactions.filter((e) => e !== emoji);
+      } else {
+        userReactions.push(emoji);
       }
-    } finally {
-      button.disabled = false;
-    }
-  };
 
-  // Only render buttons if emojis are configured
-  if (emojis.length > 0) {
+      try {
+        const result = await toggleReaction(config.endpoint, pageId, emoji);
+        counts[emoji] = result.count;
+        updateButton(button, result.count, result.action === "added");
+
+        if (result.action === "added" && !userReactions.includes(emoji)) {
+          userReactions.push(emoji);
+        } else if (result.action === "removed") {
+          userReactions = userReactions.filter((e) => e !== emoji);
+        }
+      } catch (error) {
+        console.error("Pop: Failed to toggle reaction", error);
+        updateButton(button, currentCount, wasActive);
+        if (wasActive) {
+          userReactions.push(emoji);
+        } else {
+          userReactions = userReactions.filter((e) => e !== emoji);
+        }
+      } finally {
+        button.disabled = false;
+      }
+    };
+
     renderButtons(container, emojis, counts, userReactions, handleClick);
-  }
-
-  // Always record visit, but only show counter if configured
-  try {
-    const visitResult = await recordVisit(config.endpoint, pageId);
-    if (config.showVisitors) {
-      renderVisitorCount(container, visitResult.uniqueVisitors);
-    }
-  } catch (error) {
-    console.error("Pop: Failed to record visit", error);
   }
 }
 

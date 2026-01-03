@@ -5,12 +5,13 @@
  */
 
 export interface PopConfig {
-  el: string;
   endpoint: string;
-  emojis?: string[];
   pageId?: string;
-  showVisitors?: boolean;
-  silent?: boolean;
+  el?: string;
+  emojis?: string[];
+  trackVisits?: boolean;
+  renderVisits?: boolean;
+  renderReactions?: boolean;
 }
 
 export interface ReactionsResponse {
