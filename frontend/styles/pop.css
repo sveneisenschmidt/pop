@@ -46,4 +46,6 @@
 
 .pop-visitors {
   cursor: not-allowed;
+  border: none;
+  background: #f7f7f7;
 }
