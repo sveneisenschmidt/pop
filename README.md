@@ -1,16 +1,20 @@
-# Pop
+<h1 align="center">Pop</h1>
+<p align="center">Lightweight, self-hosted emoji reaction widget for blogs.</p>
 
-Lightweight, self-hosted emoji reaction widget for blogs.
+<p align="center">
+  <img src="docs/screenshot.png" alt="Pop Demo" height="48" />
+</p>
+
+---
 
 ## Features
 
-- Toggle reactions on/off (server remembers user state via fingerprinting)
-- Optional visitor counter with configurable deduplication window
-- Silent mode for visitor counting without UI
-- Rate limiting (10 requests/minute per user)
-- CORS with domain whitelist
-- SQLite storage (single file, no external database)
+- Emoji reactions with toggle support
+- Visitor counter with deduplication
+- Silent mode (no UI, only data collection)
 - Analytics dashboard
+- Fully customizable styling via CSS
+- Self-hosted with SQLite storage
 - ~3KB minified frontend
 
 ## Structure
@@ -164,7 +168,7 @@ docker compose up -d
 </script>
 ```
 
-### Silent Mode (Tracking Only, No UI)
+### Silent Mode (Data Collection Only, No UI)
 
 For recording visits without displaying anything:
 
