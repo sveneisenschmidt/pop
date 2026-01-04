@@ -101,21 +101,21 @@ describe("render", () => {
 
       const visitorEl = container.querySelector(".pop-visitors");
       expect(visitorEl).not.toBeNull();
-      expect(visitorEl?.textContent).toBe("5 visitors");
+      expect(visitorEl?.textContent).toBe("👀 5");
     });
 
-    it("uses singular form for 1 visitor", () => {
+    it("shows count for 1 visitor", () => {
       renderVisitorCount(container, 1);
 
       const visitorEl = container.querySelector(".pop-visitors");
-      expect(visitorEl?.textContent).toBe("1 visitor");
+      expect(visitorEl?.textContent).toBe("👀 1");
     });
 
     it("shows 0 visitors", () => {
       renderVisitorCount(container, 0);
 
       const visitorEl = container.querySelector(".pop-visitors");
-      expect(visitorEl?.textContent).toBe("0 visitors");
+      expect(visitorEl?.textContent).toBe("👀 0");
     });
 
     it("reuses existing visitor element", () => {
@@ -124,7 +124,7 @@ describe("render", () => {
 
       const visitorEls = container.querySelectorAll(".pop-visitors");
       expect(visitorEls.length).toBe(1);
-      expect(visitorEls[0].textContent).toBe("10 visitors");
+      expect(visitorEls[0].textContent).toBe("👀 10");
     });
   });
 
@@ -134,15 +134,15 @@ describe("render", () => {
       updateVisitorCount(container, 10);
 
       const visitorEl = container.querySelector(".pop-visitors");
-      expect(visitorEl?.textContent).toBe("10 visitors");
+      expect(visitorEl?.textContent).toBe("👀 10");
     });
 
-    it("handles singular form on update", () => {
+    it("handles count on update", () => {
       renderVisitorCount(container, 5);
       updateVisitorCount(container, 1);
 
       const visitorEl = container.querySelector(".pop-visitors");
-      expect(visitorEl?.textContent).toBe("1 visitor");
+      expect(visitorEl?.textContent).toBe("👀 1");
     });
 
     it("does nothing if visitor element does not exist", () => {
