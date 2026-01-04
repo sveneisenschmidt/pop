@@ -54,13 +54,24 @@ export function renderVisitorCount(
   container: HTMLElement,
   count: number,
 ): void {
-  let visitorEl = container.querySelector(".pop-visitors") as HTMLElement;
-  if (!visitorEl) {
-    visitorEl = document.createElement("div");
-    visitorEl.className = "pop-visitors";
-    container.appendChild(visitorEl);
+  let wrapper = container.querySelector(".pop-reactions") as HTMLElement;
+  if (!wrapper) {
+    wrapper = document.createElement("div");
+    wrapper.className = "pop-reactions";
+    container.appendChild(wrapper);
   }
-  visitorEl.textContent = `${count} visitor${count !== 1 ? "s" : ""}`;
+
+  let visitorEl = wrapper.querySelector(".pop-visitors") as HTMLElement;
+  if (!visitorEl) {
+    visitorEl = document.createElement("span");
+    visitorEl.className = "pop-btn pop-visitors";
+    wrapper.insertBefore(visitorEl, wrapper.firstChild);
+  }
+
+  visitorEl.textContent = "👀 ";
+  const span = document.createElement("span");
+  span.textContent = String(count);
+  visitorEl.appendChild(span);
 }
 
 export function updateVisitorCount(
@@ -69,6 +80,9 @@ export function updateVisitorCount(
 ): void {
   const visitorEl = container.querySelector(".pop-visitors");
   if (visitorEl) {
-    visitorEl.textContent = `${count} visitor${count !== 1 ? "s" : ""}`;
+    visitorEl.textContent = "👀 ";
+    const span = document.createElement("span");
+    span.textContent = String(count);
+    visitorEl.appendChild(span);
   }
 }

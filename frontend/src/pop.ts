@@ -51,12 +51,7 @@ export async function init(config: PopConfig): Promise<void> {
     }
   }
 
-  // Render visits
-  if (config.renderVisits && container) {
-    renderVisitorCount(container, uniqueVisitors);
-  }
-
-  // Render reactions
+  // Render reactions first (creates wrapper)
   if (config.renderReactions && container && emojis.length > 0) {
     let counts: Record<string, number> = {};
     let userReactions: string[] = [];
@@ -110,6 +105,11 @@ export async function init(config: PopConfig): Promise<void> {
     };
 
     renderButtons(container, emojis, counts, userReactions, handleClick);
+  }
+
+  // Render visits (inserts at beginning of wrapper)
+  if (config.renderVisits && container) {
+    renderVisitorCount(container, uniqueVisitors);
   }
 }
 
