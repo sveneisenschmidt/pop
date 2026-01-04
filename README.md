@@ -30,10 +30,22 @@ pop/
 └── dist/         # Build assets (demo.html, analytics.html, .env.example)
 ```
 
+## Tech Stack
+
+**Frontend**
+- TypeScript
+- esbuild
+- Vitest
+
+**Backend**
+- PHP 8.4
+- Symfony 8
+- SQLite
+
 ## Requirements
 
 - Node.js 18+
-- PHP 8.1+
+- PHP 8.4+
 - Composer
 
 ## Development
