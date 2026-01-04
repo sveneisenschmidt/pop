@@ -2,7 +2,7 @@
 <p align="center">Lightweight, self-hosted emoji reaction widget for blogs.</p>
 
 <p align="center">
-  <img src="docs/screenshot.png" alt="Pop Demo" height="60" />
+  <img src="docs/screenshot.png" alt="Pop Demo" height="96" />
 </p>
 
 <p align="center">
