@@ -4,13 +4,8 @@
  * @license MIT
  */
 
-import type { PopConfig, PopPageInfo } from "./types";
-import {
-  fetchReactions,
-  toggleReaction,
-  recordVisit,
-  fetchVisits,
-} from "./api";
+import type { PopConfig } from "./types";
+import { fetchReactions, toggleReaction, recordVisit } from "./api";
 import {
   renderButtons,
   updateButton,
@@ -45,25 +40,18 @@ export async function init(config: PopConfig): Promise<void> {
     }
   }
 
-  // Track and fetch visits
+  // Track visits
   let uniqueVisitors = 0;
-  let totalVisits = 0;
   if (config.trackVisits) {
     try {
-      await recordVisit(config.endpoint, pageId);
+      const visitResult = await recordVisit(config.endpoint, pageId);
+      uniqueVisitors = visitResult.uniqueVisitors;
     } catch (error) {
       console.error("Pop: Failed to record visit", error);
     }
-    try {
-      const visits = await fetchVisits(config.endpoint, pageId);
-      uniqueVisitors = visits.uniqueVisitors;
-      totalVisits = visits.totalVisits;
-    } catch (error) {
-      console.error("Pop: Failed to fetch visits", error);
-    }
   }
 
-  // Reaction state (available for onLoad callback)
+  // Reaction state
   let counts: Record<string, number> = {};
   let userReactions: string[] = [];
 
@@ -125,17 +113,10 @@ export async function init(config: PopConfig): Promise<void> {
     renderVisitorCount(container, uniqueVisitors);
   }
 
-  // Call onLoad callback with page info
+  // Call onLoad callback
   if (config.onLoad) {
-    const pageInfo: PopPageInfo = {
-      pageId,
-      reactions: counts,
-      userReactions,
-      uniqueVisitors,
-      totalVisits,
-    };
-    config.onLoad(pageInfo);
+    config.onLoad();
   }
 }
 
-export { PopConfig, PopPageInfo } from "./types";
+export { PopConfig } from "./types";

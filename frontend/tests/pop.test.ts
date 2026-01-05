@@ -28,7 +28,7 @@ describe("pop", () => {
   });
 
   describe("onLoad callback", () => {
-    it("calls onLoad with page info when reactions are fetched", async () => {
+    it("calls onLoad when reactions are fetched", async () => {
       const mockReactionsResponse = {
         pageId: "test-page",
         reactions: { "👋": 5, "🔥": 3 },
@@ -53,37 +53,19 @@ describe("pop", () => {
       await init(config);
 
       expect(onLoad).toHaveBeenCalledTimes(1);
-      expect(onLoad).toHaveBeenCalledWith({
-        pageId: "test-page",
-        reactions: { "👋": 5, "🔥": 3 },
-        userReactions: ["👋"],
-        uniqueVisitors: 0,
-        totalVisits: 0,
-      });
     });
 
-    it("calls onLoad with visitor count when tracking visits", async () => {
-      const mockRecordResponse = {
+    it("calls onLoad when tracking visits", async () => {
+      const mockVisitResponse = {
         success: true,
         recorded: true,
         uniqueVisitors: 42,
       };
-      const mockFetchVisitsResponse = {
-        pageId: "test-page",
-        uniqueVisitors: 42,
-        totalVisits: 100,
-      };
 
-      global.fetch = vi
-        .fn()
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockRecordResponse),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockFetchVisitsResponse),
-        });
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockVisitResponse),
+      });
 
       const onLoad = vi.fn();
       const config: PopConfig = {
@@ -96,71 +78,9 @@ describe("pop", () => {
       await init(config);
 
       expect(onLoad).toHaveBeenCalledTimes(1);
-      expect(onLoad).toHaveBeenCalledWith({
-        pageId: "test-page",
-        reactions: {},
-        userReactions: [],
-        uniqueVisitors: 42,
-        totalVisits: 100,
-      });
     });
 
-    it("calls onLoad with both reactions and visitors", async () => {
-      const mockRecordResponse = {
-        success: true,
-        recorded: true,
-        uniqueVisitors: 10,
-      };
-      const mockFetchVisitsResponse = {
-        pageId: "test-page",
-        uniqueVisitors: 10,
-        totalVisits: 25,
-      };
-      const mockReactionsResponse = {
-        pageId: "test-page",
-        reactions: { "❤️": 7 },
-        userReactions: [],
-      };
-
-      global.fetch = vi
-        .fn()
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockRecordResponse),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockFetchVisitsResponse),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockReactionsResponse),
-        });
-
-      const onLoad = vi.fn();
-      const config: PopConfig = {
-        endpoint: "https://api.example.com",
-        pageId: "test-page",
-        el: "#pop-container",
-        emojis: ["❤️"],
-        trackVisits: true,
-        renderReactions: true,
-        onLoad,
-      };
-
-      await init(config);
-
-      expect(onLoad).toHaveBeenCalledTimes(1);
-      expect(onLoad).toHaveBeenCalledWith({
-        pageId: "test-page",
-        reactions: { "❤️": 7 },
-        userReactions: [],
-        uniqueVisitors: 10,
-        totalVisits: 25,
-      });
-    });
-
-    it("calls onLoad with empty data when no features enabled", async () => {
+    it("calls onLoad when no features enabled", async () => {
       const onLoad = vi.fn();
       const config: PopConfig = {
         endpoint: "https://api.example.com",
@@ -171,29 +91,6 @@ describe("pop", () => {
       await init(config);
 
       expect(onLoad).toHaveBeenCalledTimes(1);
-      expect(onLoad).toHaveBeenCalledWith({
-        pageId: "custom-page-id",
-        reactions: {},
-        userReactions: [],
-        uniqueVisitors: 0,
-        totalVisits: 0,
-      });
-    });
-
-    it("uses window.location.href as pageId when not specified", async () => {
-      const onLoad = vi.fn();
-      const config: PopConfig = {
-        endpoint: "https://api.example.com",
-        onLoad,
-      };
-
-      await init(config);
-
-      expect(onLoad).toHaveBeenCalledWith(
-        expect.objectContaining({
-          pageId: "https://example.com/test-page",
-        }),
-      );
     });
 
     it("does not call onLoad when not provided", async () => {
@@ -206,7 +103,7 @@ describe("pop", () => {
       await expect(init(config)).resolves.toBeUndefined();
     });
 
-    it("calls onLoad with empty reactions on fetch error", async () => {
+    it("calls onLoad even on fetch error", async () => {
       global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
       const consoleSpy = vi
         .spyOn(console, "error")
@@ -224,40 +121,7 @@ describe("pop", () => {
 
       await init(config);
 
-      expect(onLoad).toHaveBeenCalledWith({
-        pageId: "test-page",
-        reactions: {},
-        userReactions: [],
-        uniqueVisitors: 0,
-        totalVisits: 0,
-      });
-
-      consoleSpy.mockRestore();
-    });
-
-    it("calls onLoad with zero visitors on visit tracking error", async () => {
-      global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      const onLoad = vi.fn();
-      const config: PopConfig = {
-        endpoint: "https://api.example.com",
-        pageId: "test-page",
-        trackVisits: true,
-        onLoad,
-      };
-
-      await init(config);
-
-      expect(onLoad).toHaveBeenCalledWith({
-        pageId: "test-page",
-        reactions: {},
-        userReactions: [],
-        uniqueVisitors: 0,
-        totalVisits: 0,
-      });
+      expect(onLoad).toHaveBeenCalledTimes(1);
 
       consoleSpy.mockRestore();
     });

@@ -4,14 +4,6 @@
  * @license MIT
  */
 
-export interface PopPageInfo {
-  pageId: string;
-  reactions: Record<string, number>;
-  userReactions: string[];
-  uniqueVisitors: number;
-  totalVisits: number;
-}
-
 export interface PopConfig {
   endpoint: string;
   pageId?: string;
@@ -20,7 +12,7 @@ export interface PopConfig {
   trackVisits?: boolean;
   renderVisits?: boolean;
   renderReactions?: boolean;
-  onLoad?: (pageInfo: PopPageInfo) => void;
+  onLoad?: () => void;
 }
 
 export interface ReactionsResponse {

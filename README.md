@@ -210,30 +210,7 @@ For recording visits without displaying anything:
 | `trackVisits` | boolean | `false` | Record visits to the server |
 | `renderVisits` | boolean | `false` | Show visitor counter (requires `el`) |
 | `renderReactions` | boolean | `false` | Show reaction buttons (requires `el` + `emojis`) |
-| `onLoad` | function | - | Callback when Pop is loaded, receives page info |
-
-### onLoad Callback
-
-The `onLoad` callback is called after Pop has finished loading and provides current page information:
-
-```html
-<script>
-  Pop.init({
-    el: '#pop',
-    endpoint: 'https://your-api.com/api',
-    emojis: ['👍', '🔥'],
-    renderReactions: true,
-    trackVisits: true,
-    onLoad: function(pageInfo) {
-      console.log(pageInfo.pageId);         // Page identifier
-      console.log(pageInfo.reactions);      // { '👍': 5, '🔥': 3 }
-      console.log(pageInfo.userReactions);  // ['👍']
-      console.log(pageInfo.uniqueVisitors); // 42
-      console.log(pageInfo.totalVisits);    // 128
-    }
-  });
-</script>
-```
+| `onLoad` | function | - | Callback when Pop is loaded |
 
 ## API
 

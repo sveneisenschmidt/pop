@@ -8,7 +8,6 @@ import type {
   ReactionsResponse,
   ToggleReactionResponse,
   VisitResponse,
-  VisitsResponse,
 } from "./types";
 
 export async function fetchReactions(
@@ -55,21 +54,6 @@ export async function recordVisit(
   });
   if (!response.ok) {
     throw new Error(`Failed to record visit: ${response.status}`);
-  }
-  return response.json();
-}
-
-export async function fetchVisits(
-  endpoint: string,
-  pageId: string,
-): Promise<VisitsResponse> {
-  const url = `${endpoint}/visits?pageId=${encodeURIComponent(pageId)}`;
-  const response = await fetch(url, {
-    method: "GET",
-    credentials: "omit",
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch visits: ${response.status}`);
   }
   return response.json();
 }
