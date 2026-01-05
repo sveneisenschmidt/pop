@@ -6,12 +6,7 @@
 
 import type { PopConfig } from "./types";
 import { fetchReactions, toggleReaction, recordVisit } from "./api";
-import {
-  renderButtons,
-  updateButton,
-  renderVisitorCount,
-  updateVisitorCount,
-} from "./render";
+import { renderButtons, updateButton, renderVisitorCount } from "./render";
 
 export async function init(config: PopConfig): Promise<void> {
   const pageId = config.pageId || window.location.href;

@@ -32,9 +32,3 @@ export interface VisitResponse {
   recorded: boolean;
   uniqueVisitors: number;
 }
-
-export interface VisitsResponse {
-  pageId: string;
-  uniqueVisitors: number;
-  totalVisits: number;
-}
