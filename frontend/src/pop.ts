@@ -5,7 +5,12 @@
  */
 
 import type { PopConfig, PopPageInfo } from "./types";
-import { fetchReactions, toggleReaction, recordVisit } from "./api";
+import {
+  fetchReactions,
+  toggleReaction,
+  recordVisit,
+  fetchVisits,
+} from "./api";
 import {
   renderButtons,
   updateButton,
@@ -40,12 +45,15 @@ export async function init(config: PopConfig): Promise<void> {
     }
   }
 
-  // Track visits
+  // Track and fetch visits
   let uniqueVisitors = 0;
+  let totalVisits = 0;
   if (config.trackVisits) {
     try {
-      const visitResult = await recordVisit(config.endpoint, pageId);
-      uniqueVisitors = visitResult.uniqueVisitors;
+      await recordVisit(config.endpoint, pageId);
+      const visits = await fetchVisits(config.endpoint, pageId);
+      uniqueVisitors = visits.uniqueVisitors;
+      totalVisits = visits.totalVisits;
     } catch (error) {
       console.error("Pop: Failed to record visit", error);
     }
@@ -120,6 +128,7 @@ export async function init(config: PopConfig): Promise<void> {
       reactions: counts,
       userReactions,
       uniqueVisitors,
+      totalVisits,
     };
     config.onLoad(pageInfo);
   }

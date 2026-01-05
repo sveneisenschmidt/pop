@@ -9,6 +9,7 @@ export interface PopPageInfo {
   reactions: Record<string, number>;
   userReactions: string[];
   uniqueVisitors: number;
+  totalVisits: number;
 }
 
 export interface PopConfig {

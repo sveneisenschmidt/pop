@@ -58,20 +58,32 @@ describe("pop", () => {
         reactions: { "👋": 5, "🔥": 3 },
         userReactions: ["👋"],
         uniqueVisitors: 0,
+        totalVisits: 0,
       });
     });
 
     it("calls onLoad with visitor count when tracking visits", async () => {
-      const mockVisitResponse = {
+      const mockRecordResponse = {
         success: true,
         recorded: true,
         uniqueVisitors: 42,
       };
+      const mockFetchVisitsResponse = {
+        pageId: "test-page",
+        uniqueVisitors: 42,
+        totalVisits: 100,
+      };
 
-      global.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve(mockVisitResponse),
-      });
+      global.fetch = vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockRecordResponse),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockFetchVisitsResponse),
+        });
 
       const onLoad = vi.fn();
       const config: PopConfig = {
@@ -89,14 +101,20 @@ describe("pop", () => {
         reactions: {},
         userReactions: [],
         uniqueVisitors: 42,
+        totalVisits: 100,
       });
     });
 
     it("calls onLoad with both reactions and visitors", async () => {
-      const mockVisitResponse = {
+      const mockRecordResponse = {
         success: true,
         recorded: true,
         uniqueVisitors: 10,
+      };
+      const mockFetchVisitsResponse = {
+        pageId: "test-page",
+        uniqueVisitors: 10,
+        totalVisits: 25,
       };
       const mockReactionsResponse = {
         pageId: "test-page",
@@ -108,7 +126,11 @@ describe("pop", () => {
         .fn()
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockVisitResponse),
+          json: () => Promise.resolve(mockRecordResponse),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockFetchVisitsResponse),
         })
         .mockResolvedValueOnce({
           ok: true,
@@ -134,6 +156,7 @@ describe("pop", () => {
         reactions: { "❤️": 7 },
         userReactions: [],
         uniqueVisitors: 10,
+        totalVisits: 25,
       });
     });
 
@@ -153,6 +176,7 @@ describe("pop", () => {
         reactions: {},
         userReactions: [],
         uniqueVisitors: 0,
+        totalVisits: 0,
       });
     });
 
@@ -184,7 +208,9 @@ describe("pop", () => {
 
     it("calls onLoad with empty reactions on fetch error", async () => {
       global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       const onLoad = vi.fn();
       const config: PopConfig = {
@@ -203,6 +229,7 @@ describe("pop", () => {
         reactions: {},
         userReactions: [],
         uniqueVisitors: 0,
+        totalVisits: 0,
       });
 
       consoleSpy.mockRestore();
@@ -210,7 +237,9 @@ describe("pop", () => {
 
     it("calls onLoad with zero visitors on visit tracking error", async () => {
       global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       const onLoad = vi.fn();
       const config: PopConfig = {
@@ -227,6 +256,7 @@ describe("pop", () => {
         reactions: {},
         userReactions: [],
         uniqueVisitors: 0,
+        totalVisits: 0,
       });
 
       consoleSpy.mockRestore();
@@ -235,7 +265,9 @@ describe("pop", () => {
 
   describe("init validation", () => {
     it("does not call onLoad when renderReactions is true but emojis is empty", async () => {
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       const onLoad = vi.fn();
 
       const config: PopConfig = {
@@ -257,7 +289,9 @@ describe("pop", () => {
     });
 
     it("does not call onLoad when el is missing but required", async () => {
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       const onLoad = vi.fn();
 
       const config: PopConfig = {
@@ -278,7 +312,9 @@ describe("pop", () => {
     });
 
     it("does not call onLoad when element is not found", async () => {
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       const onLoad = vi.fn();
 
       const config: PopConfig = {
@@ -292,7 +328,9 @@ describe("pop", () => {
       await init(config);
 
       expect(onLoad).not.toHaveBeenCalled();
-      expect(consoleSpy).toHaveBeenCalledWith('Pop: Element "#nonexistent" not found');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Pop: Element "#nonexistent" not found',
+      );
 
       consoleSpy.mockRestore();
     });

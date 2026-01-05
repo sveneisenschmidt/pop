@@ -225,10 +225,11 @@ The `onLoad` callback is called after Pop has finished loading and provides curr
     renderReactions: true,
     trackVisits: true,
     onLoad: function(pageInfo) {
-      console.log(pageInfo.pageId);        // Page identifier
-      console.log(pageInfo.reactions);     // { '👍': 5, '🔥': 3 }
-      console.log(pageInfo.userReactions); // ['👍']
+      console.log(pageInfo.pageId);         // Page identifier
+      console.log(pageInfo.reactions);      // { '👍': 5, '🔥': 3 }
+      console.log(pageInfo.userReactions);  // ['👍']
       console.log(pageInfo.uniqueVisitors); // 42
+      console.log(pageInfo.totalVisits);    // 128
     }
   });
 </script>
