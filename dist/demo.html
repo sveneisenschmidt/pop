@@ -41,6 +41,11 @@
                 renderReactions: true,
                 onLoad: function () {
                     console.log("Pop loaded!");
+                    fetch("/api/visits?pageId=demo")
+                        .then((res) => res.json())
+                        .then((data) => {
+                            console.log("Visits:", data);
+                        });
                 },
             });
         </script>

@@ -212,6 +212,30 @@ For recording visits without displaying anything:
 | `renderReactions` | boolean | `false` | Show reaction buttons (requires `el` + `emojis`) |
 | `onLoad` | function | - | Callback when Pop is loaded |
 
+### onLoad Callback
+
+The `onLoad` callback is called after Pop has finished initializing. Use it to fetch additional data:
+
+```html
+<script>
+  Pop.init({
+    el: '#pop',
+    endpoint: 'https://your-api.com/api',
+    emojis: ['👍', '🔥'],
+    renderReactions: true,
+    trackVisits: true,
+    onLoad: function() {
+      fetch('https://your-api.com/api/visits?pageId=my-page')
+        .then(res => res.json())
+        .then(data => {
+          console.log('Unique visitors:', data.uniqueVisitors);
+          console.log('Total visits:', data.totalVisits);
+        });
+    }
+  });
+</script>
+```
+
 ## API
 
 ### GET /api/reactions?pageId={id}
