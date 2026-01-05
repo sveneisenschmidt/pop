@@ -51,11 +51,15 @@ export async function init(config: PopConfig): Promise<void> {
   if (config.trackVisits) {
     try {
       await recordVisit(config.endpoint, pageId);
+    } catch (error) {
+      console.error("Pop: Failed to record visit", error);
+    }
+    try {
       const visits = await fetchVisits(config.endpoint, pageId);
       uniqueVisitors = visits.uniqueVisitors;
       totalVisits = visits.totalVisits;
     } catch (error) {
-      console.error("Pop: Failed to record visit", error);
+      console.error("Pop: Failed to fetch visits", error);
     }
   }
 
