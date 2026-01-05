@@ -88,30 +88,56 @@ class VisitService
     /**
      * @return array<int, array{page_id: string, unique_visitors: int, total_visits: int}>
      */
-    public function getAllStats(): array
+    public function getAllStats(?string $urlFilter = null): array
     {
-        $stmt = $this->pdo->query(
-            "SELECT
-                page_id,
-                COUNT(DISTINCT fingerprint) as unique_visitors,
-                COUNT(*) as total_visits
-            FROM visits
-            GROUP BY page_id
-            ORDER BY total_visits DESC",
-        );
+        if ($urlFilter !== null) {
+            $stmt = $this->pdo->prepare(
+                "SELECT
+                    page_id,
+                    COUNT(DISTINCT fingerprint) as unique_visitors,
+                    COUNT(*) as total_visits
+                FROM visits
+                WHERE page_id LIKE ?
+                GROUP BY page_id
+                ORDER BY total_visits DESC",
+            );
+            $stmt->execute(["%" . $urlFilter . "%"]);
+        } else {
+            $stmt = $this->pdo->query(
+                "SELECT
+                    page_id,
+                    COUNT(DISTINCT fingerprint) as unique_visitors,
+                    COUNT(*) as total_visits
+                FROM visits
+                GROUP BY page_id
+                ORDER BY total_visits DESC",
+            );
+        }
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getGlobalStats(): array
+    public function getGlobalStats(?string $urlFilter = null): array
     {
-        $stmt = $this->pdo->query(
-            "SELECT
-                COUNT(DISTINCT fingerprint) as unique_visitors,
-                COUNT(*) as total_visits,
-                COUNT(DISTINCT page_id) as total_pages
-            FROM visits",
-        );
+        if ($urlFilter !== null) {
+            $stmt = $this->pdo->prepare(
+                "SELECT
+                    COUNT(DISTINCT fingerprint) as unique_visitors,
+                    COUNT(*) as total_visits,
+                    COUNT(DISTINCT page_id) as total_pages
+                FROM visits
+                WHERE page_id LIKE ?",
+            );
+            $stmt->execute(["%" . $urlFilter . "%"]);
+        } else {
+            $stmt = $this->pdo->query(
+                "SELECT
+                    COUNT(DISTINCT fingerprint) as unique_visitors,
+                    COUNT(*) as total_visits,
+                    COUNT(DISTINCT page_id) as total_pages
+                FROM visits",
+            );
+        }
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

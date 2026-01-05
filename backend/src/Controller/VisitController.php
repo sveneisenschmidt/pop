@@ -33,17 +33,31 @@ class VisitController extends AbstractController
     ) {}
 
     #[Route("/stats", name: "get_stats", methods: ["GET"])]
-    public function getStats(): JsonResponse
+    public function getStats(Request $request): JsonResponse
     {
-        $global = $this->visitService->getGlobalStats();
-        $pages = $this->visitService->getAllStats();
+        $pageIdFilter = $request->query->get("pageIdFilter");
+
+        if (
+            $pageIdFilter !== null &&
+            mb_strlen($pageIdFilter) > self::MAX_PAGE_ID_LENGTH
+        ) {
+            return new JsonResponse(
+                ["error" => "pageIdFilter too long"],
+                Response::HTTP_BAD_REQUEST,
+            );
+        }
+
+        $global = $this->visitService->getGlobalStats($pageIdFilter);
+        $pages = $this->visitService->getAllStats($pageIdFilter);
 
         return new JsonResponse([
             "global" => [
                 "uniqueVisitors" => (int) $global["unique_visitors"],
                 "totalVisits" => (int) $global["total_visits"],
                 "totalPages" => (int) $global["total_pages"],
-                "totalReactions" => $this->reactionService->getGlobalReactionCount(),
+                "totalReactions" => $this->reactionService->getGlobalReactionCount(
+                    $pageIdFilter,
+                ),
             ],
             "pages" => array_map(
                 fn($page) => [

@@ -294,6 +294,8 @@ Response:
 
 Returns aggregated statistics for all pages (used by analytics dashboard).
 
+Optional query parameter: `pageIdFilter` - filters pages containing the given string.
+
 ```json
 {
   "global": {

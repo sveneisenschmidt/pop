@@ -179,11 +179,18 @@ class ReactionService
         return (int) $stmt->fetchColumn();
     }
 
-    public function getGlobalReactionCount(): int
+    public function getGlobalReactionCount(?string $urlFilter = null): int
     {
-        $stmt = $this->pdo->query(
-            "SELECT COALESCE(SUM(count), 0) FROM reactions",
-        );
+        if ($urlFilter !== null) {
+            $stmt = $this->pdo->prepare(
+                "SELECT COALESCE(SUM(count), 0) FROM reactions WHERE page_id LIKE ?",
+            );
+            $stmt->execute(["%" . $urlFilter . "%"]);
+        } else {
+            $stmt = $this->pdo->query(
+                "SELECT COALESCE(SUM(count), 0) FROM reactions",
+            );
+        }
         return (int) $stmt->fetchColumn();
     }
 }
