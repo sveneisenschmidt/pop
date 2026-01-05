@@ -65,7 +65,7 @@ export function renderVisitorCount(
   if (!visitorEl) {
     visitorEl = document.createElement("span");
     visitorEl.className = "pop-btn pop-visitors";
-    wrapper.insertBefore(visitorEl, wrapper.firstChild);
+    wrapper.appendChild(visitorEl);
   }
 
   visitorEl.textContent = "👀 ";

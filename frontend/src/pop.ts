@@ -4,7 +4,7 @@
  * @license MIT
  */
 
-import type { PopConfig } from "./types";
+import type { PopConfig, PopPageInfo } from "./types";
 import { fetchReactions, toggleReaction, recordVisit } from "./api";
 import {
   renderButtons,
@@ -51,11 +51,12 @@ export async function init(config: PopConfig): Promise<void> {
     }
   }
 
+  // Reaction state (available for onLoad callback)
+  let counts: Record<string, number> = {};
+  let userReactions: string[] = [];
+
   // Render reactions first (creates wrapper)
   if (config.renderReactions && container && emojis.length > 0) {
-    let counts: Record<string, number> = {};
-    let userReactions: string[] = [];
-
     try {
       const data = await fetchReactions(config.endpoint, pageId);
       counts = data.reactions;
@@ -111,6 +112,17 @@ export async function init(config: PopConfig): Promise<void> {
   if (config.renderVisits && container) {
     renderVisitorCount(container, uniqueVisitors);
   }
+
+  // Call onLoad callback with page info
+  if (config.onLoad) {
+    const pageInfo: PopPageInfo = {
+      pageId,
+      reactions: counts,
+      userReactions,
+      uniqueVisitors,
+    };
+    config.onLoad(pageInfo);
+  }
 }
 
-export { PopConfig } from "./types";
+export { PopConfig, PopPageInfo } from "./types";

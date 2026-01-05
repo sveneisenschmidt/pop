@@ -39,6 +39,13 @@
                 trackVisits: true,
                 renderVisits: true,
                 renderReactions: true,
+                onLoad: function (pageInfo) {
+                    console.log("Pop loaded!", pageInfo);
+                    console.log("Page ID:", pageInfo.pageId);
+                    console.log("Reactions:", pageInfo.reactions);
+                    console.log("User reactions:", pageInfo.userReactions);
+                    console.log("Unique visitors:", pageInfo.uniqueVisitors);
+                },
             });
         </script>
     </body>
