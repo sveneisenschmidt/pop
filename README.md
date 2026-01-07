@@ -294,8 +294,12 @@ Response:
 
 Returns aggregated statistics for all pages (used by analytics dashboard).
 
-Optional query parameter: `pageIdFilter` - filters pages containing the given string.
+Query parameters:
+- `pageIdFilter` - filters pages containing the given string
+- `group` - group results by time period: `day`, `week`, or `month`
+- `limit` - number of periods to return (max: day=28, week=52, month=12)
 
+**Default response (no grouping):**
 ```json
 {
   "global": {
@@ -309,6 +313,22 @@ Optional query parameter: `pageIdFilter` - filters pages containing the given st
   ]
 }
 ```
+
+**Grouped response (`?group=day&limit=7`):**
+```json
+{
+  "day_0": {
+    "global": { "uniqueVisitors": 50, "totalVisits": 120, "totalPages": 5 },
+    "pages": [{ "pageId": "page-1", "uniqueVisitors": 30, "totalVisits": 80 }]
+  },
+  "day_1": {
+    "global": { "uniqueVisitors": 45, "totalVisits": 100, "totalPages": 4 },
+    "pages": [...]
+  }
+}
+```
+
+Where `day_0` is today, `day_1` is yesterday, etc. Same logic applies for `week_0`/`week_1` and `month_0`/`month_1`.
 
 ## Environment Variables
 
