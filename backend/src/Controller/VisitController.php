@@ -36,6 +36,8 @@ class VisitController extends AbstractController
     public function getStats(Request $request): JsonResponse
     {
         $pageIdFilter = $request->query->get("pageIdFilter");
+        $group = $request->query->get("group");
+        $limit = $request->query->getInt("limit", 14);
 
         if (
             $pageIdFilter !== null &&
@@ -45,6 +47,45 @@ class VisitController extends AbstractController
                 ["error" => "pageIdFilter too long"],
                 Response::HTTP_BAD_REQUEST,
             );
+        }
+
+        if (in_array($group, ["day", "week", "month"], true)) {
+            $maxLimits = ["day" => 28, "week" => 52, "month" => 12];
+            $limit = max(1, min($limit, $maxLimits[$group]));
+
+            $globalGrouped = $this->visitService->getGlobalStatsGrouped(
+                $group,
+                $limit,
+                $pageIdFilter,
+            );
+            $pagesGrouped = $this->visitService->getAllStatsGrouped(
+                $group,
+                $limit,
+                $pageIdFilter,
+            );
+
+            $result = [];
+            for ($i = 0; $i < $limit; $i++) {
+                $key = $group . "_" . $i;
+                $result[$key] = [
+                    "global" => [
+                        "uniqueVisitors" =>
+                            $globalGrouped[$key]["unique_visitors"],
+                        "totalVisits" => $globalGrouped[$key]["total_visits"],
+                        "totalPages" => $globalGrouped[$key]["total_pages"],
+                    ],
+                    "pages" => array_map(
+                        fn($page) => [
+                            "pageId" => $page["page_id"],
+                            "uniqueVisitors" => (int) $page["unique_visitors"],
+                            "totalVisits" => (int) $page["total_visits"],
+                        ],
+                        $pagesGrouped[$key],
+                    ),
+                ];
+            }
+
+            return new JsonResponse($result);
         }
 
         $global = $this->visitService->getGlobalStats($pageIdFilter);

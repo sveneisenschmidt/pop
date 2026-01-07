@@ -170,4 +170,101 @@ class VisitServiceTest extends TestCase
             $this->service->getVisitCount("https://example.com/page1"),
         );
     }
+
+    public function testGetGlobalStatsGroupedByDayReturnsCorrectStructure(): void
+    {
+        $this->service->recordVisit("fp1", "page1");
+        $this->service->recordVisit("fp2", "page1");
+        $this->service->recordVisit("fp1", "page2");
+
+        $result = $this->service->getGlobalStatsGrouped("day", 7);
+
+        $this->assertCount(7, $result);
+        $this->assertArrayHasKey("day_0", $result);
+        $this->assertArrayHasKey("day_6", $result);
+
+        // Today should have our visits
+        $this->assertSame(2, $result["day_0"]["unique_visitors"]);
+        $this->assertSame(3, $result["day_0"]["total_visits"]);
+        $this->assertSame(2, $result["day_0"]["total_pages"]);
+
+        // Yesterday should be empty
+        $this->assertSame(0, $result["day_1"]["unique_visitors"]);
+        $this->assertSame(0, $result["day_1"]["total_visits"]);
+    }
+
+    public function testGetGlobalStatsGroupedByWeekReturnsCorrectStructure(): void
+    {
+        $this->service->recordVisit("fp1", "page1");
+
+        $result = $this->service->getGlobalStatsGrouped("week", 4);
+
+        $this->assertCount(4, $result);
+        $this->assertArrayHasKey("week_0", $result);
+        $this->assertArrayHasKey("week_3", $result);
+
+        // This week should have our visit
+        $this->assertSame(1, $result["week_0"]["unique_visitors"]);
+        $this->assertSame(1, $result["week_0"]["total_visits"]);
+    }
+
+    public function testGetGlobalStatsGroupedByMonthReturnsCorrectStructure(): void
+    {
+        $this->service->recordVisit("fp1", "page1");
+
+        $result = $this->service->getGlobalStatsGrouped("month", 3);
+
+        $this->assertCount(3, $result);
+        $this->assertArrayHasKey("month_0", $result);
+        $this->assertArrayHasKey("month_2", $result);
+
+        // This month should have our visit
+        $this->assertSame(1, $result["month_0"]["unique_visitors"]);
+        $this->assertSame(1, $result["month_0"]["total_visits"]);
+    }
+
+    public function testGetAllStatsGroupedByDayReturnsCorrectStructure(): void
+    {
+        $this->service->recordVisit("fp1", "page1");
+        $this->service->recordVisit("fp2", "page1");
+        $this->service->recordVisit("fp1", "page2");
+
+        $result = $this->service->getAllStatsGrouped("day", 7);
+
+        $this->assertCount(7, $result);
+        $this->assertArrayHasKey("day_0", $result);
+
+        // Today should have 2 pages
+        $this->assertCount(2, $result["day_0"]);
+        $this->assertSame("page1", $result["day_0"][0]["page_id"]);
+        $this->assertSame(2, (int) $result["day_0"][0]["unique_visitors"]);
+        $this->assertSame(2, (int) $result["day_0"][0]["total_visits"]);
+
+        // Yesterday should be empty
+        $this->assertCount(0, $result["day_1"]);
+    }
+
+    public function testGetGlobalStatsGroupedWithUrlFilter(): void
+    {
+        $this->service->recordVisit("fp1", "/blog/post1");
+        $this->service->recordVisit("fp2", "/blog/post2");
+        $this->service->recordVisit("fp3", "/about");
+
+        $result = $this->service->getGlobalStatsGrouped("day", 1, "blog");
+
+        $this->assertSame(2, $result["day_0"]["unique_visitors"]);
+        $this->assertSame(2, $result["day_0"]["total_visits"]);
+        $this->assertSame(2, $result["day_0"]["total_pages"]);
+    }
+
+    public function testGetAllStatsGroupedWithUrlFilter(): void
+    {
+        $this->service->recordVisit("fp1", "/blog/post1");
+        $this->service->recordVisit("fp2", "/blog/post2");
+        $this->service->recordVisit("fp3", "/about");
+
+        $result = $this->service->getAllStatsGrouped("day", 1, "blog");
+
+        $this->assertCount(2, $result["day_0"]);
+    }
 }
