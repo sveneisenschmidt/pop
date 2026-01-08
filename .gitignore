@@ -1,19 +1,23 @@
-# Build output
-/build/
-
 # Dependencies
-/backend/vendor/
-/frontend/node_modules/
+/vendor/
+/node_modules/
 
-# Frontend build
-/frontend/dist/
+# Symfony
+/var/
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
 
-# Backend runtime
-/backend/var/
+# PHPUnit
+/phpunit.xml
+/.phpunit.cache/
+
+# Built assets
+/public/pop.min.js
+/public/pop.min.css
 
 # Environment
-.env
 .env.local
+.env.local.php
 .env.*.local
 
 # IDE

@@ -1,32 +1,25 @@
-.PHONY: install test build demo clean
-
--include .env
-export
+.PHONY: install dev test lint build clean
 
 install:
-	cd backend && $(MAKE) install
-	cd frontend && $(MAKE) install
+	composer install
+	npm install
+
+dev:
+	@npm run build
+	@npm run watch & \
+	symfony serve --port=8000 --no-tls
 
 test:
-	cd backend && $(MAKE) test
-	cd frontend && $(MAKE) test
+	npm test
+	./bin/phpunit
+
+lint:
+	./vendor/bin/php-cs-fixer fix --dry-run --diff 2>/dev/null || true
+	./vendor/bin/phpstan analyse src 2>/dev/null || true
 
 build:
-	cd frontend && $(MAKE) build
-	cd backend && rm -rf var/cache
-
-demo: build
-	@echo "Starting demo at http://localhost:8000/demo.html"
-	@echo ""
-	@cp frontend/dist/pop.min.js backend/public/
-	@cp frontend/dist/pop.min.css backend/public/
-	@cp dist/*.html backend/public/
-	@cd backend && APP_ENV=prod APP_SECRET=demo POP_ALLOWED_DOMAINS=http://localhost:8000 POP_DATABASE_PATH=var/data.db php -S localhost:8000 -t public &
-	@sleep 1
-	@open http://localhost:8000/demo.html || xdg-open http://localhost:8000/demo.html || echo "Open http://localhost:8000/demo.html"
-	@echo "Press Ctrl+C to stop"
-	@wait
+	npm run build
+	composer install --no-dev --no-scripts --optimize-autoloader --quiet
 
 clean:
-	cd backend && $(MAKE) clean
-	cd frontend && $(MAKE) clean
+	rm -rf var/cache var/log vendor node_modules public/pop.min.js public/pop.min.css

@@ -1,0 +1,17 @@
+{
+    "name": "pop",
+    "version": "1.0.0",
+    "description": "Lightweight emoji reaction widget",
+    "private": true,
+    "scripts": {
+        "build": "esbuild assets/ts/pop.ts --bundle --minify --format=iife --global-name=Pop --outfile=public/pop.min.js && esbuild assets/css/pop.css --minify --outfile=public/pop.min.css",
+        "watch": "esbuild assets/ts/pop.ts --bundle --format=iife --global-name=Pop --outfile=public/pop.min.js --watch=forever & esbuild assets/css/pop.css --outfile=public/pop.min.css --watch=forever",
+        "test": "vitest run"
+    },
+    "devDependencies": {
+        "esbuild": "^0.20.0",
+        "jsdom": "^24.0.0",
+        "typescript": "^5.0.0",
+        "vitest": "^1.0.0"
+    }
+}
