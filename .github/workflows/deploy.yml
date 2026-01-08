@@ -13,11 +13,29 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Download build artifacts
-              uses: actions/download-artifact@v4
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
               with:
-                  name: build
-                  path: .
+                  node-version: "20"
+                  cache: "npm"
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.4"
+                  extensions: ctype, iconv
+                  coverage: none
+
+            - name: Install dependencies
+              run: |
+                  composer install --no-dev --no-scripts --optimize-autoloader --no-progress
+                  npm ci
+
+            - name: Build assets
+              run: npm run build
 
             - name: Setup SSH
               run: |
