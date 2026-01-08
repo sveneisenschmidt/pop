@@ -1,0 +1,86 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    if: github.actor == 'sveneisenschmidt'
+    uses: ./.github/workflows/test.yml
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: ctype, iconv
+          coverage: none
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Prepare build directory
+        run: |
+          mkdir -p build/public build/var
+
+          # Copy backend
+          cp -r backend/src build/
+          cp -r backend/config build/
+          cp -r backend/bin build/
+          cp -r backend/public/. build/public/
+          cp backend/composer.json build/
+          cp backend/composer.lock build/
+
+          # Copy frontend assets
+          cp frontend/dist/pop.min.js build/public/
+          cp frontend/dist/pop.min.css build/public/
+
+          # Copy demo files
+          cp dist/*.html build/public/
+
+      - name: Install production dependencies
+        working-directory: build
+        run: composer install --no-dev --no-scripts --optimize-autoloader --no-progress
+
+      - name: Clean up composer files
+        run: rm -f build/composer.json build/composer.lock
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Ensure var directory exists on server
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "mkdir -p ${{ secrets.DEPLOY_PATH }}/var"
+
+      - name: Deploy via rsync
+        run: |
+          rsync -avz --delete \
+            --exclude 'var/' \
+            --exclude '.env' \
+            --exclude '.htaccess' \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            build/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}
