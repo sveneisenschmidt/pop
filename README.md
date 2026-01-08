@@ -22,15 +22,6 @@
 - Cookie-less & privacy-friendly
 - ~3KB minified frontend
 
-## Structure
-
-```
-pop/
-├── frontend/     # TypeScript widget
-├── backend/      # PHP/Symfony API
-└── dist/         # Build assets (demo.html, analytics.html, .env.example)
-```
-
 ## Tech Stack
 
 **Frontend**
@@ -45,7 +36,7 @@ pop/
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 20+
 - PHP 8.4+
 - Composer
 
@@ -54,40 +45,43 @@ pop/
 ```bash
 make install   # Install dependencies
 make test      # Run tests
-make dist      # Build for production
-```
-
-## Demo
-
-```bash
-make demo
+make dev       # Start dev server with file watching
 ```
 
 Opens http://localhost:8000/demo.html
 
 ## Deployment
 
+### GitHub Actions (Recommended)
+
+The project includes GitHub Actions workflows for CI/CD:
+
+- **Tests**: Run automatically on push to `main`
+- **Deploy**: Manual trigger via GitHub Actions UI
+
+Required secrets:
+- `DEPLOY_SSH_KEY` - Private SSH key
+- `DEPLOY_HOST` - Server hostname/IP
+- `DEPLOY_USER` - SSH username
+- `DEPLOY_PATH` - Target directory on server
+
+### Manual Deployment
+
 1. Build the project:
    ```bash
-   make dist
+   make build
    ```
 
-2. The `build/` directory is a complete, self-contained application:
+2. Deploy these directories to your server:
    ```
-   build/
-   ├── public/           # Document root
-   │   ├── index.php     # Symfony entry point
-   │   ├── pop.min.js    # Widget script
-   │   ├── pop.min.css   # Widget styles
-   │   ├── demo.html     # Demo page
-   │   └── analytics.html # Analytics dashboard
-   ├── var/              # Database (must be writable)
-   └── .env              # Configuration
+   bin/        # Symfony console
+   config/     # Symfony config
+   public/     # Document root (index.php, pop.min.js, pop.min.css)
+   src/        # PHP source
+   vendor/     # PHP dependencies
    ```
 
-3. Deploy `build/` to your PHP server with `public/` as document root.
-
-4. Configure `build/.env`:
+3. Create `.env.local` on the server:
    ```bash
    APP_ENV=prod
    APP_SECRET=<random-string>
@@ -95,18 +89,18 @@ Opens http://localhost:8000/demo.html
    POP_DATABASE_PATH=var/data.db
    ```
 
-5. Ensure `var/` directory is writable by the web server.
+4. Ensure `var/` directory exists and is writable by the web server.
 
 ### Docker Compose
 
 ```yaml
 services:
   pop:
-    image: php:8.3-apache
+    image: php:8.4-apache
     ports:
       - "8080:80"
     volumes:
-      - ./build:/var/www/html
+      - ./:/var/www/html
       - pop-data:/var/www/html/var
     environment:
       - APP_ENV=prod
@@ -125,12 +119,6 @@ services:
 
 volumes:
   pop-data:
-```
-
-Run with:
-```bash
-make dist
-docker compose up -d
 ```
 
 ## Usage
