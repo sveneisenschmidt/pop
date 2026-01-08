@@ -1,38 +1,50 @@
 name: Build
 
 on:
-  workflow_call:
+    workflow_call:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    build:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.4"
-          extensions: ctype, iconv
-          coverage: none
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.4"
+                  extensions: ctype, iconv
+                  coverage: none
 
-      - name: Install dependencies
-        run: |
-          composer install --no-dev --no-scripts --optimize-autoloader --no-progress
-          npm ci
+            - name: Install dependencies
+              run: |
+                  composer install --no-dev --no-scripts --optimize-autoloader --no-progress
+                  npm ci
 
-      - name: Build assets
-        run: npm run build
+            - name: Build assets
+              run: npm run build
 
-      - name: Verify build output
-        run: |
-          test -f public/pop.min.js || exit 1
-          test -f public/pop.min.css || exit 1
+            - name: Verify build output
+              run: |
+                  test -f public/pop.min.js || exit 1
+                  test -f public/pop.min.css || exit 1
+
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: build
+                  path: |
+                      bin/
+                      config/
+                      public/
+                      src/
+                      vendor/
+                  retention-days: 1
