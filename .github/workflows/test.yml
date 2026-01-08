@@ -34,4 +34,6 @@ jobs:
                   npm ci
 
             - name: Run tests
-              run: ./bin/phpunit
+              run: |
+                  npm test
+                  ./bin/phpunit
