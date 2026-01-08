@@ -56,7 +56,7 @@ jobs:
 
             - name: Deploy via rsync
               run: |
-                  rsync -avz --delete \
+                  rsync -avz --delete --dry-run \
                     --include='bin/***' \
                     --include='config/***' \
                     --include='public/***' \
