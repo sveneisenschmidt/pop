@@ -39,11 +39,15 @@ class ReactionService
                 fingerprint TEXT NOT NULL,
                 page_id TEXT NOT NULL,
                 emoji TEXT NOT NULL,
+                created_at INTEGER,
                 PRIMARY KEY(fingerprint, page_id, emoji)
             )
         ');
         $this->pdo->exec(
             "CREATE INDEX IF NOT EXISTS idx_user_page ON user_reactions(fingerprint, page_id)",
+        );
+        $this->pdo->exec(
+            "CREATE INDEX IF NOT EXISTS idx_user_reactions_created ON user_reactions(created_at)",
         );
     }
 
@@ -127,9 +131,9 @@ class ReactionService
         string $emoji,
     ): void {
         $stmt = $this->pdo->prepare(
-            "INSERT OR IGNORE INTO user_reactions (fingerprint, page_id, emoji) VALUES (?, ?, ?)",
+            "INSERT OR IGNORE INTO user_reactions (fingerprint, page_id, emoji, created_at) VALUES (?, ?, ?, ?)",
         );
-        $stmt->execute([$fingerprint, $pageId, $emoji]);
+        $stmt->execute([$fingerprint, $pageId, $emoji, time()]);
     }
 
     private function removeUserReaction(
